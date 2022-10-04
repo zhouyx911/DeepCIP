@@ -2,15 +2,11 @@ import os
 import shutil
 import warnings
 import torch
-import torch.nn as nn
 import argparse
 import subprocess
 import numpy as np
-import pandas as pd
 from torch_geometric.loader import DataLoader
-import pytorch_lightning as pl
-from pytorch_lightning.trainer import Trainer, seed_everything
-from torch_geometric.loader import DataLoader
+from pytorch_lightning.trainer import seed_everything
 from compile.fusion_gnn import PL_Fusion
 from compile.create_graph_predict import RNAGraphDataset
 from compile.mode import mode1_process
@@ -94,9 +90,6 @@ config = {
         
     }
 
-train_config = config
-max_epochs = 2000
-gpu = 0
 
 device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -104,13 +97,12 @@ data_test = RNAGraphDataset(dataset=args.data_name, rna_graph=pred_struc_dir,\
      xr=(seq_ls_m0 if args.mode == 0 else seq_ls_m1), \
      xs=(np.array(seq_ls_m0) if args.mode == 0 else np.array(seq_ls_m1)))
 
+loader = DataLoader(dataset=data_test, batch_size=args.bs)
+
 ckpt_paths1 = './model/Fusion/set1/version_0/checkpoints/epoch=5-step=168.ckpt'
 ckpt_paths2 = './model/Fusion/set2/version_0/checkpoints/epoch=6-step=196.ckpt'
 ckpt_paths3 = './model/Fusion/set3/version_1/checkpoints/epoch=7-step=224.ckpt'
 
-# test_labels = torch.FloatTensor(data_test.data.y)
-
-loader = DataLoader(dataset=data_test, batch_size=args.bs)
 
 
 preds_all = []
