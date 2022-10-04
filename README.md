@@ -2,7 +2,10 @@
 DeepCIP is a **D**eep learning method for **C**ircRNA **I**RES **P**rediction.
 
 ## The ViennaRNA package installation
-First, download the ViennaRNA package from https://www.tbi.univie.ac.at/RNA/download/sourcecode/2_5_x/ViennaRNA-2.5.1.tar.gz
+RNAplfold from ViennaRNA version 2.5.1 is required to predict RNA secondary structure in DeepCIP. You need to install the ViennaRNA package before you start to use DeepCIP.
+
+First, download the ViennaRNA package from https://www.tbi.univie.ac.at/RNA/download/sourcecode/2_5_x/ViennaRNA-2.5.1.tar.gz .
+
 Then, install ViennaRNA package:
 ```
 tar -zxvf ViennaRNA-2.5.1.tar.gz
