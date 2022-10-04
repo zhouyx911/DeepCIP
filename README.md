@@ -59,3 +59,6 @@ optional arguments:
   --w                   window size (default=174). See --mode description. It can be ignore when mode=0.
   --s                   step (default=50). See --mode description. It can be ignore when mode=0.
   ```
+
+## Datasets
+Raw data used in our study can be avaliable in [GSE178718_Oligo_eGFP_expression.xlsx](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE178718&format=file&file=GSE178718%5FOligo%5FeGFP%5Fexpression%2Exlsx) and [55k_oligos](https://bitbucket.org/alexeyg-com/irespredictor/src/v2/data/)
