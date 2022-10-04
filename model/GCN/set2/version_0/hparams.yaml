@@ -1,8 +1,0 @@
-batch_size: 256
-gcn_drop: 0.2
-gcn_layer: 3
-graph_pool: sum
-learning_rate: 0.0001
-num_features: 4
-optim: Adam
-output_dim: 1
