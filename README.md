@@ -30,7 +30,10 @@ conda activate DeepCIP_pytorch
 
 ## Usage
 ### Run DeepCIP for circRNA IRES prediction
-Example:
+The file prepared for prediction can be put into folder ./data or any other path. 
+Then, type the following command to start the prediction, with parameters set according to your needs.
+
+For example:
 ```
 python DeepCIP.py --data_name example --input_file ./data/human_circires.fa --outfile ./results/predict.out
 ```
