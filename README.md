@@ -39,7 +39,7 @@ For more options:
 python DeepCIP.py --help
 ```
 ```
-usage: DeepCIP.py [-h] [--data_name] [--input_file INPUT_FILE] [--outfile OUTFILE] [--bs BS] [--c C] [--mode MODE] [--w W] [--s S]
+usage: DeepCIP.py [-h] [--data_name] [--input_file] [--outfile] [--bs] [--c] [--mode] [--w] [--s]
 
 optional arguments:
   -h, --help            show this help message and exit
