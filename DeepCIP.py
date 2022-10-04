@@ -17,14 +17,14 @@ from compile.mode import mode1_process
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_name', default=None, help='', type=str)
-parser.add_argument('--input_file', default=None, help='', type=str)
-parser.add_argument('--outfile', default='./results/predict.out', help='', type=str)
-parser.add_argument('--bs', default=32, help='batch_size', type=int)
-parser.add_argument('--c', default=0.5, help='predictive threshold', type=float)
-parser.add_argument('--mode', default=0, help='select predicted mode', type=int)
-parser.add_argument('--w', default=174, help='window_size', type=int)
-parser.add_argument('--s', default=50, help='step', type=int)
+parser.add_argument('--data_name', default=None, help='The name of your input dataset.', metavar='', type=str)
+parser.add_argument('--input_file', default=None, help='Input file for prediction. (*.fasta or *.fa file)', metavar='', type=str)
+parser.add_argument('--outfile', default='./results/predict.out', help='Output file storage path.', metavar='', type=str)
+parser.add_argument('--bs', default=32, help='Batch size. (default=32)  "--bs 32" means every 32 sampels constitute a prediction batch. This parameter affects the speed and       results of the prediction. The larger the batch size, the faster the prediction, as far as your machine allows. (If the lengths of your input sequences vary greatly, it is recommended that you do not use a large batch size, or you can put sequences of similar lengths together for prediction)', metavar='', type=int)
+parser.add_argument('--c', default=0.5, help='Prediction threshold. (default=0.5)', metavar='', type=float)
+parser.add_argument('--mode', default=0, help='The mode of prediction. (default=0)  mode 0: Prediction directly on the input sequence.  mode 1: The input sequence is partitioned by length w and interval s, and then the partitioned sequence is predicted. (w and s can be set by --w and --s, respectively)', metavar='', type=int)
+parser.add_argument('--w', default=174, help='window size (default=174). See --mode description. It can be ignore when mode=0.', metavar='', type=int)
+parser.add_argument('--s', default=50, help='step (default=50). See --mode description. It can be ignore when mode=0.', metavar='', type=int)
 args = parser.parse_args()
 
 warnings.filterwarnings('ignore')
