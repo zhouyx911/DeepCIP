@@ -1,5 +1,5 @@
 # DeepCIP
-DeepCIP is a **D**eep learning method for **C**ircRNA **I**RES **P**rediction.
+DeepCIP is a **Deep** learning method for **C**ircRNA **I**RES **P**rediction.
 
 ## The ViennaRNA package installation
 RNAplfold from ViennaRNA version 2.5.1 is required to predict RNA secondary structure in DeepCIP. You need to install the ViennaRNA package before you start to use DeepCIP.
