@@ -4,9 +4,9 @@ DeepCIP is a **Deep** learning method for **C**ircRNA **I**RES **P**rediction.
 ## System Requirments
 DeepCIP needs to run on a Linux operating system (e.g. Debian 11.3) with the following software installed.
 ### Software Requirments:
-Python3.8
-Perl (Recommended v5.32.1)
-Anaconda
+* Python3.8
+* Perl (Recommended v5.32.1)
+* Anaconda
 
 
 ## The ViennaRNA package installation
