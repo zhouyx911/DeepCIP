@@ -86,11 +86,6 @@ def DeepCIP_predict():
         name_ls.append(name)
         seq_ls.append(res[name].replace('U', 'T'))
 
-
-    seed = 37
-    seed_everything(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
     
 
     config = {
