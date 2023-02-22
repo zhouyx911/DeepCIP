@@ -30,7 +30,7 @@ def DeepCIP_predict():
     parser.add_argument('-i','--input_file', default=None, help='Input file for prediction. (*.fasta or *.fa file)', metavar='', type=str, required=True)
     parser.add_argument('-b','--batch_size', default=16, help='Batch size. (default=16)  "--bs 16" means every 32 sampels constitute a prediction batch. This parameter affects the speed and  results of the prediction. The larger the batch size, the faster the prediction, as far as your machine allows. (If the lengths of your input sequences vary greatly, it is recommended that you do not use a large batch size, or you can put sequences of similar lengths together for prediction)', metavar='', type=int)
     parser.add_argument('-c','--cut_off', default=0.5, help='Prediction threshold. (default=0.5)', metavar='', type=float)
-    parser.add_argument('-m','--mode', default=0, choices=[0, 1, 2], help='The mode of prediction. (default=0)  mode 0: Prediction directly on the input sequence.  mode 1: The input sequence is partitioned by length w and interval s, and then the partitioned sequence is predicted. (w and s can be set by --w and --s, respectively)  mode 2:', metavar='', type=int)
+    parser.add_argument('-m','--mode', default=0, choices=[0, 1, 2], help='The mode of prediction. (default=0)  mode 0: Prediction directly on the input sequence.  mode 1: The input sequence is partitioned by length w and interval s, and then the partitioned sequence is predicted. (w and s can be set by -w and -s, respectively)  mode 2: Predicting a particular region of interest in a single circRNA (-r to input the region in circRNA)', metavar='', type=int)
     parser.add_argument('-w','--window_size', default=174, help='window size (default=174). See --mode description. It can be ignore when mode not is 1.', metavar='', type=int)
     parser.add_argument('-s','--step', default=50, help='step (default=50). See --mode description. It can be ignore when mode not is 1.', metavar='', type=int)
     parser.add_argument('-r','--region', default=None, nargs=2, help='region of circRNA detection. e.g -r 1 12 for first 12 bases, -r -12 -1 for last 12 bases, -r 13 -1 for cutting first 12 bases. See --mode description. It can be ignore when mode not is 2.', metavar='', type=int)
@@ -86,11 +86,6 @@ def DeepCIP_predict():
         name_ls.append(name)
         seq_ls.append(res[name].replace('U', 'T'))
 
-
-    seed = 37
-    seed_everything(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
     
 
     config = {
