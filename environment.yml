@@ -5,11 +5,12 @@ channels:
 dependencies:
   - _libgcc_mutex=0.1=main
   - _openmp_mutex=5.1=1_gnu
+  - biopython=1.78=py38h7f8727e_0
   - blas=1.0=mkl
   - brotlipy=0.7.0=py38h27cfd23_1003
   - bzip2=1.0.8=h7b6447c_0
-  - ca-certificates=2022.07.19=h06a4308_0
-  - certifi=2022.6.15=py38h06a4308_0
+  - ca-certificates=2023.01.10=h06a4308_0
+  - certifi=2022.12.7=py38h06a4308_0
   - cffi=1.15.1=py38h74dc2b5_0
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - conda-pack=0.6.0=pyhd3eb1b0_0
@@ -50,7 +51,7 @@ dependencies:
   - numpy=1.23.1=py38h6c91a56_0
   - numpy-base=1.23.1=py38ha15fc14_0
   - openh264=2.1.1=h4ff587b_0
-  - openssl=1.1.1q=h7f8727e_0
+  - openssl=1.1.1s=h7f8727e_0
   - pillow=9.2.0=py38hace64e9_1
   - pip=22.1.2=py38h06a4308_0
   - pycparser=2.21=pyhd3eb1b0_0
@@ -144,4 +145,4 @@ dependencies:
     - werkzeug==2.2.2
     - yarl==1.8.1
     - zipp==3.8.1
-prefix: /opt/conda/envs/DeepCIP_pytorch
+prefix: /opt/conda/envs/pytorch
