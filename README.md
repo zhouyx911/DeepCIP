@@ -24,6 +24,10 @@ make install
 ```
 For more details, see https://github.com/ViennaRNA/ViennaRNA
 
+## Seqkit installation
+DeepCIP relies on Seqkit to process RNA sequences (eg. subsequence segmentation)
+You can download Seqkit from https://bioinf.shenwei.me/seqkit/download/
+
 ## Installation of DeepCIP and its environment
 First, download the repository and create the environment.
 ```
@@ -50,20 +54,19 @@ For more options:
 python DeepCIP.py --help
 ```
 ```
-usage: DeepCIP.py [-h] [-n] [-i] [-b] [-c] [-m] [-w] [-s]
+usage: DeepCIP.py [-h] -n  -i  [-b] [-c] [-m] [-w] [-s] [-r ]
 
 optional arguments:
   -h, --help           show this help message and exit
   -n , --data_name     The name of your input dataset.
   -i , --input_file    Input file for prediction. (*.fasta or *.fa file)
-  -b , --batch_size    Batch size. (default=32) "--bs 32" means every 32 sampels constitute a prediction batch. This parameter affects the speed and results of the 
-                       prediction. The larger the batch size, the faster the prediction, as far as your machine allows. (If the lengths of your input sequences vary 
-                       greatly, it is recommended that you do not use a large batch size, or you can put sequences of similar lengths together for prediction)
+  -b , --batch_size    Batch size. (default=16) "--bs 16" means every 32 sampels constitute a prediction batch. This parameter affects the speed and results of the prediction. The larger the batch size, the faster the prediction, as far as your machine allows. (If the lengths of your input sequences vary greatly, it is recommended that you do not use a large batch size, or you can put sequences of similar lengths together for prediction)
   -c , --cut_off       Prediction threshold. (default=0.5)
-  -m , --mode          The mode of prediction. (default=0) mode 0: Prediction directly on the input sequence. mode 1: The input sequence is partitioned by length w and
-                       interval s, and then the partitioned sequence is predicted. (w and s can be set by --w and --s, respectively)
-  -w , --window_size   window size (default=174). See --mode description. It can be ignore when mode=0.
-  -s , --step          step (default=50). See --mode description. It can be ignore when mode=0.
+  -m , --mode          The mode of prediction. (default=0) mode 0: Prediction directly on the input sequence. mode 1: The input sequence is partitioned by length w and interval s, and then the partitioned sequence is predicted. (w and s can be set by --w and --s, respectively)
+                       mode 2:
+  -w , --window_size   window size (default=174). See --mode description. It can be ignore when mode not is 1.
+  -s , --step          step (default=50). See --mode description. It can be ignore when mode not is 1.
+  -r  , --region       region of circRNA detection. e.g -r 1 12 for first 12 bases, -r -12 -1 for last 12 bases, -r 13 -1 for cutting first 12 bases. See --mode description. It can be ignore when mode not is 2.
   ```
 
 ## Datasets
