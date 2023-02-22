@@ -29,6 +29,8 @@ DeepCIP relies on Seqkit to process RNA sequences (eg. subsequence segmentation)
 
 You can download Seqkit from https://bioinf.shenwei.me/seqkit/download/
 
+Reference: W Shen, S Le, Y Li*, F Hu*. SeqKit: a cross-platform and ultrafast toolkit for FASTA/Q file manipulation. PLOS ONE. doi:10.1371/journal.pone.0163962.
+
 ## Installation of DeepCIP and its environment
 First, download the repository and create the environment.
 ```
@@ -69,6 +71,8 @@ optional arguments:
   -s , --step          step (default=50). See --mode description. It can be ignore when mode not is 1.
   -r  , --region       region of circRNA detection. e.g -r 1 12 for first 12 bases, -r -12 -1 for last 12 bases, -r 13 -1 for cutting first 12 bases. See --mode description. It can be ignore when mode not is 2.
   ```
+
+The result will be saved as a csv format file.
 
 ## Datasets
 Raw data used in our study can be avaliable in [GSE178718_Oligo_eGFP_expression](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE178718&format=file&file=GSE178718%5FOligo%5FeGFP%5Fexpression%2Exlsx) and [55k_oligos](https://bitbucket.org/alexeyg-com/irespredictor/src/v2/data/)
