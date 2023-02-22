@@ -3,37 +3,43 @@ import shutil
 import warnings
 import datetime
 import torch
-import torch.nn as nn
 import argparse
 import subprocess
 import numpy as np
 import pandas as pd
+from Bio import SeqIO
 from torch_geometric.loader import DataLoader
-import pytorch_lightning as pl
-from pytorch_lightning.trainer import Trainer, seed_everything
-from torch_geometric.loader import DataLoader
-from compile.fusion_gnn import PL_Fusion
-from compile.create_graph_predict import RNAGraphDataset
-from compile.mode import mode1_process
+from pytorch_lightning.trainer import seed_everything
+from compiles.fusion_gnn import PL_Fusion
+from compiles.create_graph_predict import RNAGraphDataset
 
+def read_fa(path):
+    res = {}
+    records = list(SeqIO.parse(path, format='fasta'))
+    for x in records:
+        id = str(x.id)
+        seq = str(x.seq)
+        res[id] = seq
+    return res
 
 
 def DeepCIP_predict():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-n','--data_name', default=None, help='The name of your input dataset.', metavar='', type=str)
-    parser.add_argument('-i','--input_file', default=None, help='Input file for prediction. (*.fasta or *.fa file)', metavar='', type=str)
-    parser.add_argument('-b','--batch_size', default=32, help='Batch size. (default=32)  "--bs 32" means every 32 sampels constitute a prediction batch. This parameter affects the speed and       results of the prediction. The larger the batch size, the faster the prediction, as far as your machine allows. (If the lengths of your input sequences vary greatly, it is recommended that you do not use a large batch size, or you can put sequences of similar lengths together for prediction)', metavar='', type=int)
+    parser.add_argument('-n','--data_name', default=None, help='The name of your input dataset.', metavar='', type=str, required=True)
+    parser.add_argument('-i','--input_file', default=None, help='Input file for prediction. (*.fasta or *.fa file)', metavar='', type=str, required=True)
+    parser.add_argument('-b','--batch_size', default=16, help='Batch size. (default=16)  "--bs 16" means every 32 sampels constitute a prediction batch. This parameter affects the speed and  results of the prediction. The larger the batch size, the faster the prediction, as far as your machine allows. (If the lengths of your input sequences vary greatly, it is recommended that you do not use a large batch size, or you can put sequences of similar lengths together for prediction)', metavar='', type=int)
     parser.add_argument('-c','--cut_off', default=0.5, help='Prediction threshold. (default=0.5)', metavar='', type=float)
-    parser.add_argument('-m','--mode', default=0, choices=[0, 1], help='The mode of prediction. (default=0)  mode 0: Prediction directly on the input sequence.  mode 1: The input sequence is partitioned by length w and interval s, and then the partitioned sequence is predicted. (w and s can be set by --w and --s, respectively)', metavar='', type=int)
-    parser.add_argument('-w','--window_size', default=174, help='window size (default=174). See --mode description. It can be ignore when mode=0.', metavar='', type=int)
-    parser.add_argument('-s','--step', default=50, help='step (default=50). See --mode description. It can be ignore when mode=0.', metavar='', type=int)
+    parser.add_argument('-m','--mode', default=0, choices=[0, 1, 2], help='The mode of prediction. (default=0)  mode 0: Prediction directly on the input sequence.  mode 1: The input sequence is partitioned by length w and interval s, and then the partitioned sequence is predicted. (w and s can be set by --w and --s, respectively)  mode 2:', metavar='', type=int)
+    parser.add_argument('-w','--window_size', default=174, help='window size (default=174). See --mode description. It can be ignore when mode not is 1.', metavar='', type=int)
+    parser.add_argument('-s','--step', default=50, help='step (default=50). See --mode description. It can be ignore when mode not is 1.', metavar='', type=int)
+    parser.add_argument('-r','--region', default=None, nargs=2, help='region of circRNA detection. e.g -r 1 12 for first 12 bases, -r -12 -1 for last 12 bases, -r 13 -1 for cutting first 12 bases. See --mode description. It can be ignore when mode not is 2.', metavar='', type=int)
     args = parser.parse_args()
 
     warnings.filterwarnings('ignore')
 
     start = datetime.datetime.now()
-    print(f'{start}: Prediction starting... \n')
+    print(f'{start}: IRES prediction starting... \n')
     print('------------------------------------------------------------------')
 
 
@@ -42,43 +48,44 @@ def DeepCIP_predict():
         os.mkdir(pred_struc_dir)
     else:
         print(pred_struc_dir + ' exist')
-        
-
-
-    #get_fasta_seq_name
-    #get_seq
-    name_ls_m0 = []
-    seq_ls_m0 = []
-    with open('./data/' + f'{args.input_file}', 'r') as f1:
-        fa_data = f1.read().splitlines()
-        for line in fa_data:
-            if '>' in line:
-                name_ls_m0.append(line[1:])
-            else:
-                line.replace('U', 'T')
-                seq_ls_m0.append(line)
 
     print('Structure prediction...')
 
     if args.mode == 0:
-        structure_pred0 = subprocess.call(['RNAplfold -W 150 -c 0.001 --noLP --auto-id --id-digits 5 <' + f'./data/{args.input_file}'], shell=True, stdout=subprocess.PIPE)
+        structure_pred0 = subprocess.call(['RNAplfold -W 150 -c 0.001 --noLP --auto-id --id-digits 10 <' + f'./data/{args.input_file}'], shell=True, stdout=subprocess.PIPE)
+        input_file = args.input_file
 
-    else:
-        name_ls_m1 = []
-        seq_ls_m1 = []
-        for k in range(len(seq_ls_m0)):
-            subseq, subname = mode1_process(seq_ls_m0[k], name_ls_m0[k], window_size=args.window_size, step=args.step)
-            seq_ls_m1.extend(subseq)
-            name_ls_m1.extend(subname)
-        with open(f'./data/process_{args.input_file}','w') as subfile:
-            for l in range(len(seq_ls_m1)):
-                subfile.write('>' + name_ls_m1[l] + '\n' + seq_ls_m1[l] + '\n')
+    elif args.mode == 1:
+        circrna_split = subprocess.call([f'seqkit sliding -s {args.step} -W {args.window_size} -C ./data/{args.input_file} > ./data/process_{args.input_file}'], \
+            shell=True, stdout=subprocess.PIPE)
+        seq2oneline = subprocess.call([f'seqkit seq ./data/process_{args.input_file} -w 0 > ./data/split_{args.input_file}'], shell=True, stdout=subprocess.PIPE)
+        os.remove(f'./data/process_{args.input_file}')
 
-        structure_pred1 = subprocess.call(['RNAplfold -W 150 -c 0.001 --noLP --auto-id --id-digits 5 <' + f'./data/process_{args.input_file}'], shell=True, stdout=subprocess.PIPE)
+        print('The sequence split is done!')
+
+        structure_pred1 = subprocess.call(['RNAplfold -W 150 -c 0.001 --noLP --auto-id --id-digits 10 <' + f'./data/split_{args.input_file}'], shell=True, stdout=subprocess.PIPE)
+        input_file = f'split_{args.input_file}'
+
+    elif args.mode == 2:
+        seq2oneline = subprocess.call([f'seqkit subseq -r {args.region[0]}:{args.region[1]} ./data/{args.input_file} > ./data/subseq_{args.input_file}'], shell=True, stdout=subprocess.PIPE)
+        structure_pred2 = subprocess.call(['RNAplfold -W 150 -c 0.001 --noLP --auto-id --id-digits 10 <' + f'./data/subseq_{args.input_file}'], shell=True, stdout=subprocess.PIPE)
+        input_file = f'subseq_{args.input_file}'
 
     for struc_file in os.listdir('./'):
         if struc_file.endswith('_dp.ps'):
             shutil.move(struc_file, pred_struc_dir + struc_file)
+
+    print('Structure prediction done!')
+
+    #get_fasta_seq_name
+    #get_seq
+    name_ls = []
+    seq_ls = []
+    res = read_fa('./data/' + f'{input_file}')
+    for name in res.keys():
+        name_ls.append(name)
+        seq_ls.append(res[name].replace('U', 'T'))
+
 
     seed = 37
     seed_everything(seed)
@@ -87,58 +94,58 @@ def DeepCIP_predict():
     
 
     config = {
-            'num_features': 4,
-            'gcn_drop': 0.2,
-            'graph_pool': 'sum',
-            'output_dim': 1,
-            'learning_rate': 8e-5,
-            'batch_size': 256,
-            'optim': 'Adam',
-            'input_size': 4,
-            'hidden_size': 64,
-            'window_size': 3,
-            'steps': 9,
-            'sentence_nodes': 1,
-            'slstm_drop': 0.0,
-            'batch_first': False,
-            'acti_func': 'ReLU',
-            'seq_weight': 0.5,
-            'struc_weight': 0.5
-            
-        }
+        'num_features': 4,
+        'gcn_drop': 0.0,
+        'graph_pool': 'sum',
+        'output_dim': 1,
+        'learning_rate': 1e-4,
+        'batch_size': 256,
+        'optim': 'Adam',
+        'input_size': 13,
+        'hidden_size': 64,
+        'window_size': 3,
+        'steps': 7,
+        'sentence_nodes': 1,
+        'slstm_drop': 0.0,
+        'batch_first': False,
+        'acti_func': 'ReLU',
+        'conv_size1': 32,
+        'conv_size2': 16,
+        'kernel_size1': 4,
+        'kernel_size2': 4
+        
+    }
 
 
     device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 
     data_test = RNAGraphDataset(dataset=args.data_name, rna_graph=pred_struc_dir,\
-        xr=(seq_ls_m0 if args.mode == 0 else seq_ls_m1), \
-        xs=(np.array(seq_ls_m0) if args.mode == 0 else np.array(seq_ls_m1)))
+        xr=seq_ls, xs=np.array(seq_ls))
 
     loader = DataLoader(dataset=data_test, batch_size=args.batch_size)
 
-    ckpt_paths1 = './model/Fusion/set1/version_0/checkpoints/epoch=5-step=168.ckpt'
-    ckpt_paths2 = './model/Fusion/set2/version_0/checkpoints/epoch=6-step=196.ckpt'
-    ckpt_paths3 = './model/Fusion/set3/version_1/checkpoints/epoch=7-step=224.ckpt'
-
+    ckpt_paths1 = './model/Fusion/set1/version_0/checkpoints/epoch=49-step=1400.ckpt'
+    ckpt_paths2 = './model/Fusion/set2/version_1/checkpoints/epoch=112-step=3164.ckpt'
+    ckpt_paths3 = './model/Fusion/set3/version_3/checkpoints/epoch=37-step=1064.ckpt'
 
 
     preds_all = []
 
     preds1 = np.empty(0)
-    seq_ckpt_paths1 = './model/S_LSTM/set1/version_1/checkpoints/epoch=12-step=364.ckpt'
-    struc_ckpt_paths1 = './model/GCN/set1/version_0/checkpoints/epoch=93-step=2632.ckpt'
+    seq_ckpt_paths1 = './model/S_LSTM/set1/version_0/checkpoints/epoch=40-step=1148.ckpt'
+    struc_ckpt_paths1 = './model/GCN/set1/version_1/checkpoints/epoch=176-step=4956.ckpt'
     model1 = PL_Fusion.load_from_checkpoint(ckpt_paths1, config=config, seq_ckpt_path=seq_ckpt_paths1, struc_ckpt_path=struc_ckpt_paths1, map_location=device)
     model1.eval()
 
     preds2 = np.empty(0)
-    seq_ckpt_paths2 = './model/S_LSTM/set2/version_1/checkpoints/epoch=1-step=56.ckpt'
-    struc_ckpt_paths2 = './model/GCN/set2/version_0/checkpoints/epoch=42-step=1204.ckpt'
+    seq_ckpt_paths2 = './model/S_LSTM/set2/version_0/checkpoints/epoch=18-step=532.ckpt'
+    struc_ckpt_paths2 = './model/GCN/set2/version_1/checkpoints/epoch=5-step=168.ckpt'
     model2 = PL_Fusion.load_from_checkpoint(ckpt_paths2, config=config, seq_ckpt_path=seq_ckpt_paths2, struc_ckpt_path=struc_ckpt_paths2, map_location=device)
     model2.eval()
 
     preds3 = np.empty(0)
-    seq_ckpt_paths3 = './model/S_LSTM/set3/version_1/checkpoints/epoch=15-step=448.ckpt'
-    struc_ckpt_paths3 = './model/GCN/set3/version_0/checkpoints/epoch=6-step=196.ckpt'
+    seq_ckpt_paths3 = './model/S_LSTM/set3/version_0/checkpoints/epoch=19-step=560.ckpt'
+    struc_ckpt_paths3 = './model/GCN/set3/version_1/checkpoints/epoch=1-step=56.ckpt'
     model3 = PL_Fusion.load_from_checkpoint(ckpt_paths3, config=config, seq_ckpt_path=seq_ckpt_paths3, struc_ckpt_path=struc_ckpt_paths3, map_location=device)
     model3.eval()
 
@@ -161,23 +168,22 @@ def DeepCIP_predict():
     ires_labels = []
     for i in ensemble_probs:
         if i < args.cut_off:
-            ires_label = 'Non-circires'
+            ires_label = 'Non-CircIRES'
         else:
-            ires_label = 'Circires'
+            ires_label = 'CircIRES'
         ires_labels.append(ires_label)
 
     out_dir = './results'
     out_name = args.input_file.split('/')[-1].split('.')[0]
-    outfile = f'{out_dir}/{out_name}_mode_{args.mode}.result'
+    outfile = f'{out_dir}/{out_name}_mode_{args.mode}.csv'
 
-    if args.mode == 0:
-        with open(outfile, 'w') as fout:
-            for n in range(len(ensemble_probs)):
-                print(name_ls_m0[n],ensemble_probs[n],ires_labels[n],file=fout)
-    if args.mode == 1:
-        with open(outfile, 'w') as fout:
-            for n in range(len(ensemble_probs)):
-                print(name_ls_m1[n],ensemble_probs[n],ires_labels[n],file=fout)
+    result_df = pd.DataFrame()
+    result_df['Sequence_name'] = name_ls
+    result_df['Predict_probs'] = ensemble_probs
+    result_df['IRES_label'] = ires_labels
+
+    result_df.to_csv(outfile)
+
 
     shutil.rmtree(pred_struc_dir)
     for struc_file in os.listdir('./'):
@@ -186,7 +192,8 @@ def DeepCIP_predict():
 
     print('------------------------------------------------------------------')
     end = datetime.datetime.now()
-    print(f'{end}: Prediction complete! \n')
+    print(f'{end}: IRES prediction complete! \n')
+    print('The prediction results were saved in {}'.format(outfile))
 
 if __name__ == "__main__":
     DeepCIP_predict()
