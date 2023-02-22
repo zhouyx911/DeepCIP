@@ -25,7 +25,8 @@ make install
 For more details, see https://github.com/ViennaRNA/ViennaRNA
 
 ## Seqkit installation
-DeepCIP relies on Seqkit to process RNA sequences (eg. subsequence segmentation)
+DeepCIP relies on Seqkit to process RNA sequences (eg. subsequence segmentation).
+
 You can download Seqkit from https://bioinf.shenwei.me/seqkit/download/
 
 ## Installation of DeepCIP and its environment
