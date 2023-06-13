@@ -50,7 +50,7 @@ Then, type the following command to start the prediction, with parameters set ac
 
 For example:
 ```
-python DeepCIP.py -n example -i human_circires.fa
+python DeepCIP.py -n example -i circires_case.fa
 ```
 For more options:
 ```
