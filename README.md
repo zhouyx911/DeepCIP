@@ -65,8 +65,10 @@ optional arguments:
   -i , --input_file    Input file for prediction. (*.fasta or *.fa file)
   -b , --batch_size    Batch size. (default=16) "--bs 16" means every 16 sampels constitute a prediction batch. This parameter affects the speed and results of the prediction. The larger the batch size, the faster the prediction, as far as your machine allows. (If the lengths of your input sequences vary greatly, it is recommended that you do not use a large batch size, or you can put sequences of similar lengths together for prediction)
   -c , --cut_off       Prediction threshold. (default=0.5)
-  -m , --mode          The mode of prediction. (default=0) mode 0: Prediction directly on the input sequence. mode 1: The input sequence is partitioned by length w and interval s, and then the partitioned sequence is predicted. (w and s can be set by --w and --s, respectively)
-                       mode 2:
+  -m , --mode          The mode of prediction. (default=0)
+                       mode 0: Prediction directly on the input sequence.
+                       mode 1: The input sequence is partitioned by length w and interval s, and then the partitioned sequence is predicted. (w and s can be set by --w and --s, respectively)
+                       mode 2: Predicting a particular region of interest in a single circRNA (-r to input the region in circRNA)
   -w , --window_size   window size (default=174). See --mode description. It can be ignore when mode not is 1.
   -s , --step          step (default=50). See --mode description. It can be ignore when mode not is 1.
   -r  , --region       region of circRNA detection. e.g -r 1 12 for first 12 bases, -r -12 -1 for last 12 bases, -r 13 -1 for cutting first 12 bases. See --mode description. It can be ignore when mode not is 2.
