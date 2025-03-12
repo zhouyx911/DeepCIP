@@ -45,7 +45,7 @@ conda activate DeepCIP_pytorch
 
 ## Usage
 ### Run DeepCIP for circRNA IRES prediction
-The file prepared for prediction should be put into folder ./data. 
+The FASTA format file prepared for prediction should be put into folder ./data. 
 Then, type the following command to start the prediction, with parameters set according to your needs.
 
 For example:
@@ -78,3 +78,7 @@ The result will be saved as a csv format file.
 
 ## Datasets
 Raw data used in our study can be avaliable in [GSE178718_Oligo_eGFP_expression](https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE178718&format=file&file=GSE178718%5FOligo%5FeGFP%5Fexpression%2Exlsx) and [55k_oligos](https://bitbucket.org/alexeyg-com/irespredictor/src/v2/data/)
+
+
+## Citations
+Zhou Y, Wu J, Yao S, Xu Y, Zhao W, Tong Y, Zhou Z. DeepCIP: A multimodal deep learning method for the prediction of internal ribosome entry sites of circRNAs. Comput Biol Med. 2023 Sep;164:107288. doi: [10.1016/j.compbiomed.2023.107288.](https://doi.org/10.1016/j.compbiomed.2023.107288)
